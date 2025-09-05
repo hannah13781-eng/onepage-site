@@ -19,7 +19,7 @@
   @media (prefers-color-scheme: dark){ select{ border-color: rgba(255,255,255,0.14);} }
 
   canvas {
-    width: 360px; height: 520px;
+    width: 360px; height: 520px;           /* CSS size (논-레티나 좌표계) */
     background: var(--elev-2);
     border-radius: 16px;
     border:1px solid rgba(0,0,0,0.15);
@@ -63,24 +63,26 @@
     const canvas = document.getElementById('c');
     const ctx = canvas.getContext('2d');
 
+    // --- DPR 스케일링: 내부 해상도를 디바이스 픽셀 비율에 맞춤 ---
     function setupCanvas() {
       const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
       const cssW = parseInt(getComputedStyle(canvas).width, 10);
       const cssH = parseInt(getComputedStyle(canvas).height, 10);
       canvas.width = cssW * dpr;
       canvas.height = cssH * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // 좌표계를 CSS 픽셀 기준으로
       return { W: cssW, H: cssH };
     }
     let W = 360, H = 520;
     ({ W, H } = setupCanvas());
     window.addEventListener('resize', () => { ({ W, H } = setupCanvas()); });
 
-    // --- 난이도별 설정 ---
+    // ---- 난이도별 파라미터 -------------------------------------------
+    // 요청: 간격 더 넓게, 속도/진폭 감소(FLAP↓, GRAVITY↓, DRAG↑, MAX_VY↓)
     const presets = {
-      easy:   { GRAVITY: 0.24, FLAP: -6.2, PIPE_SPEED: 2.0, GAP: 160, DRAG: 0.985, MAX_VY: 5.6, PIPE_DIST: 220 },
-      normal: { GRAVITY: 0.28, FLAP: -6.6, PIPE_SPEED: 2.4, GAP: 130, DRAG: 0.987, MAX_VY: 6.2, PIPE_DIST: 200 },
-      hard:   { GRAVITY: 0.32, FLAP: -6.9, PIPE_SPEED: 2.8, GAP: 115, DRAG: 0.99,  MAX_VY: 6.8, PIPE_DIST: 180 },
+      easy:   { GRAVITY: 0.20, FLAP: -5.2, PIPE_SPEED: 1.9, GAP: 170, DRAG: 0.980, MAX_VY: 4.2, PIPE_DIST: 280 },
+      normal: { GRAVITY: 0.24, FLAP: -5.8, PIPE_SPEED: 2.3, GAP: 140, DRAG: 0.985, MAX_VY: 5.0, PIPE_DIST: 240 },
+      hard:   { GRAVITY: 0.28, FLAP: -6.2, PIPE_SPEED: 2.7, GAP: 120, DRAG: 0.988, MAX_VY: 5.6, PIPE_DIST: 210 },
     };
     let GRAVITY, FLAP, PIPE_SPEED, GAP, DRAG, MAX_VY, PIPE_DIST;
 
@@ -92,19 +94,36 @@
     }
     document.getElementById('difficulty').addEventListener('change', (e)=> setDifficulty(e.target.value));
 
-    // --- 상태 ---
+    // ---- 상태 --------------------------------------------------------
     let bird, pipes, score, started, alive;
+
+    // 배경(파이프 뒤) — 스크롤 구름
+    let clouds = [];
+    function initClouds() {
+      clouds = [];
+      for (let i=0;i<6;i++){
+        clouds.push({
+          x: Math.random()*W,
+          y: 30 + Math.random()*(H*0.6),
+          w: 60 + Math.random()*70,
+          h: 14 + Math.random()*10,
+          v: 0.4 + Math.random()*0.4,
+          a: 0.10 + Math.random()*0.12 // 알파
+        });
+      }
+    }
 
     function reset(){
       started = false; alive = true; score = 0;
-      bird = { x: 70, y: H/2, vy: 0, size: 20, color: '#FFD166', stroke: '#2F2F2F' };
+      bird = { x: 70, y: H/2, vy: 0, size: 20, color: '#FFD166', stroke: '#2F2F2F' }; // 노랑 + 진한 테두리
       pipes = [];
       spawnPipes();
-      draw();
+      initClouds();
+      draw(); // 초기 프레임
     }
 
     function spawnPipes(){
-      const top = 50 + Math.random()*(H - (GAP + 100));
+      const top = 50 + Math.random()*(H - (GAP + 100)); // 상하 여백 확보
       const w = 60;
       const x = W + 40;
       pipes.push({ x, w, top, gap: GAP });
@@ -112,22 +131,40 @@
 
     function update(){
       if(!alive) return;
+
+      // 배경 구름 업데이트 (파이프 뒤에서 스크롤)
+      for(const c of clouds){
+        c.x -= c.v;
+        if (c.x + c.w < -10) {
+          c.x = W + Math.random()*60;
+          c.y = 30 + Math.random()*(H*0.6);
+          c.w = 60 + Math.random()*70;
+          c.h = 14 + Math.random()*10;
+          c.v = 0.4 + Math.random()*0.4;
+          c.a = 0.10 + Math.random()*0.12;
+        }
+      }
+
       if (started) {
+        // 중력 + 감쇠 + 속도 제한 → 진폭 축소
         bird.vy += GRAVITY;
         bird.vy *= DRAG;
         if (bird.vy >  MAX_VY) bird.vy =  MAX_VY;
         if (bird.vy < -MAX_VY) bird.vy = -MAX_VY;
         bird.y += bird.vy;
 
+        // 파이프 이동/생성/제거
         for(const p of pipes){ p.x -= PIPE_SPEED; }
         if(pipes[pipes.length-1].x < W - PIPE_DIST) spawnPipes();
         if(pipes[0].x + pipes[0].w < -10) { pipes.shift(); score++; }
 
+        // 충돌
         const p = pipes[0];
         const inX = bird.x + bird.size/2 > p.x && bird.x - bird.size/2 < p.x + p.w;
         const inY = bird.y - bird.size/2 < p.top || bird.y + bird.size/2 > p.top + p.gap;
         if (inX && inY) alive = false;
 
+        // 상하 경계
         if (bird.y - bird.size/2 < 0 || bird.y + bird.size/2 > H) alive = false;
       }
     }
@@ -135,7 +172,20 @@
     function draw(){
       ctx.clearRect(0,0,W,H);
 
-      // 파이프 (파란색 본체 + 검정 테두리)
+      // ---- 배경(그라데이션 하늘) ------------------------------------
+      const sky = ctx.createLinearGradient(0,0,0,H);
+      sky.addColorStop(0,  '#dfe8ff');  // 밝은 하늘
+      sky.addColorStop(1,  '#eef3ff');  // 아주 연한 하늘
+      ctx.fillStyle = sky;
+      ctx.fillRect(0,0,W,H);
+
+      // 구름 (파이프 뒤)
+      for(const c of clouds){
+        ctx.fillStyle = `rgba(255,255,255,${c.a})`;
+        roundRect(c.x, c.y, c.w, c.h, 8, true, false);
+      }
+
+      // ---- 파이프 (본체 파랑 + 검정 테두리) -------------------------
       ctx.fillStyle = '#7C9CFF';
       ctx.strokeStyle = '#222';
       ctx.lineWidth = 2;
@@ -147,7 +197,7 @@
         ctx.stroke();
       }
 
-      // 새(네모)
+      // ---- 플레이어(네모) -------------------------------------------
       const s = bird.size;
       ctx.fillStyle = bird.color;
       ctx.strokeStyle = bird.stroke;
@@ -155,7 +205,7 @@
       ctx.fillRect(bird.x - s/2, bird.y - s/2, s, s);
       ctx.strokeRect(bird.x - s/2, bird.y - s/2, s, s);
 
-      // 스코어
+      // ---- 스코어 ---------------------------------------------------
       ctx.fillStyle = 'rgba(0,0,0,0.55)';
       ctx.font = '16px Inter, system-ui, sans-serif';
       ctx.fillText('Score: ' + score, 12, 22);
@@ -167,8 +217,19 @@
       }
     }
 
+    function roundRect(x,y,w,h,r,fill,stroke){
+      ctx.beginPath();
+      ctx.moveTo(x+r, y);
+      ctx.arcTo(x+w, y,   x+w, y+h, r);
+      ctx.arcTo(x+w, y+h, x,   y+h, r);
+      ctx.arcTo(x,   y+h, x,   y,   r);
+      ctx.arcTo(x,   y,   x+w, y,   r);
+      if(fill) ctx.fill();
+      if(stroke) ctx.stroke();
+    }
+
     function overlayText(title, subtitle, strong){
-      ctx.fillStyle = strong ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.9)';
+      ctx.fillStyle = strong ? 'rgba(0,0,0,0.75)' : 'rgba(0,0,0,0.65)';
       ctx.font = '24px Inter, system-ui, sans-serif';
       centerText(title, H/2 - 10);
       ctx.font = '14px Inter, system-ui, sans-serif';
@@ -188,9 +249,10 @@
     function flapNow(){
       if(!alive) return;
       if(!started) { started = true; bird.vy = FLAP; return; }
-      bird.vy = Math.max(-MAX_VY, FLAP);
+      bird.vy = Math.max(-MAX_VY, FLAP); // 플랩 시 과도한 상승 방지
     }
 
+    // 입력
     document.addEventListener('keydown', e => {
       if(e.code === 'Space') { e.preventDefault(); flapNow(); }
       if(e.key.toLowerCase() === 'r') reset();
@@ -199,9 +261,11 @@
     canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); flapNow(); }, {passive:false});
     document.getElementById('restart').addEventListener('click', reset);
 
+    // 시작
     setDifficulty('easy');
     loop();
   </script>
 </body>
 </html>
+
 
