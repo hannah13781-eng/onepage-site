@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Snake</title>
+  <!-- CSS는 루트 기준 assets 폴더 -->
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    canvas { background:#111; display:block; margin:16px auto; border-radius:12px }
+    #hud { text-align:center; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Snake</h1>
+      <nav><a href="../../">Home</a></nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <div id="hud"><strong>Score:</strong> <span id="score">0</span></div>
+      <canvas id="game" width="480" height="480"></canvas>
+      <div class="card"><p><strong>Controls:</strong> Arrow Keys / WASD</p></div>
+    </div>
+  </main>
+
+  <script>
+    const c=document.getElementById('game'),x=c.getContext('2d'),g=24;
+    let s=[{x:10,y:10}],vx=1,vy=0,a={x:15,y:10},score=0,spd=120,last=0,dead=false;
+    function rc(){return Math.floor(Math.random()*(c.width/g))}
+    function place(){a={x:rc(),y:rc()}; if(s.some(p=>p.x===a.x&&p.y===a.y)) place();}
+    addEventListener('keydown',e=>{
+      const k=e.key.toLowerCase();
+      if((k==='arrowup'||k==='w')&&vy!==1){vx=0;vy=-1}
+      else if((k==='arrowdown'||k==='s')&&vy!==-1){vx=0;vy=1}
+      else if((k==='arrowleft'||k==='a')&&vx!==1){vx=-1;vy=0}
+      else if((k==='arrowright'||k==='d')&&vx!==-1){vx=1;vy=0}
+    });
+    function loop(t){
+      if(t-last<spd){requestAnimationFrame(loop);return} last=t;
+      if(dead){
+        x.fillStyle='#fff';x.font='bold 22px system-ui';x.textAlign='center';
+        x.fillText('Game Over - Refresh to Restart',c.width/2,c.height/2);return;
+      }
+      const h={x:s[0].x+vx,y:s[0].y+vy};
+      if(h.x<0||h.y<0||h.x>=c.width/g||h.y>=c.height/g) dead=true;
+      if(s.some(p=>p.x===h.x&&p.y===h.y)) dead=true;
+      s.unshift(h);
+      if(h.x===a.x&&h.y===a.y){
+        score+=10;document.getElementById('score').textContent=score;
+        place();spd=Math.max(60,spd-2);
+      } else s.pop();
+      x.clearRect(0,0,c.width,c.height);
+      x.fillStyle='#ef4444'; x.fillRect(a.x*g+2,a.y*g+2,g-4,g-4);
+      x.fillStyle='#22c55e'; s.forEach(p=>x.fillRect(p.x*g+2,p.y*g+2,g-4,g-4));
+      requestAnimationFrame(loop);
+    }
+    place(); requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
