@@ -5,29 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>One-Page Tools & Games</title>
   <link rel="stylesheet" href="assets/style.css" />
+  <meta name="color-scheme" content="light dark" />
 </head>
 <body>
   <header class="site-header container">
-    <a class="brand" href="./">✨ Playground</a>
-    <nav class="nav">
+    <div class="header-inner">
+      <a class="brand" href="./">✨ Playground</a>
+
+      <!-- 햄버거 버튼 -->
+      <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle menu">
+        ☰
+      </button>
+    </div>
+
+    <!-- 접히는 내비게이션 -->
+    <nav id="site-nav" class="nav collapsible" hidden>
       <div class="nav-item">
-        <a href="#">Utilities ▾</a>
+        <a href="#" class="nav-top">Utilities ▾</a>
         <div class="dropdown">
           <a href="utils/charcount.html">Character Counter</a>
           <a href="utils/wordcount.html">Word Counter</a>
           <a href="utils/case-converter.html">Case Converter</a>
         </div>
       </div>
+
       <div class="nav-item">
-        <a href="#">Games ▾</a>
+        <a href="#" class="nav-top">Games ▾</a>
         <div class="dropdown">
           <a href="games/snake/index.html">Snake</a>
           <a href="games/tictactoe/index.html">Tic-Tac-Toe</a>
           <a href="games/flappysquare/index.html">Flappy Square</a>
         </div>
       </div>
+
       <div class="nav-item">
-        <a href="#">About ▾</a>
+        <a href="#" class="nav-top">About ▾</a>
         <div class="dropdown">
           <a href="about.html">About</a>
           <a href="privacy.html">Privacy</a>
@@ -42,13 +54,17 @@
     <section class="hero">
       <h1>One-Page Tools & Games</h1>
       <p>Quick utilities and fun little games — built with plain HTML/CSS/JS.</p>
+      <div class="hero-cta">
+        <a class="btn primary" href="#utils">Use Utilities</a>
+        <a class="btn" href="#games">Play Games</a>
+      </div>
     </section>
 
     <div class="ad-placeholder">
       Ad placeholder (insert AdSense unit here after approval)
     </div>
 
-    <section class="section">
+    <section id="utils" class="section">
       <div class="section-head">
         <h2>Utilities</h2>
       </div>
@@ -56,22 +72,22 @@
         <a class="card link" href="utils/charcount.html">
           <h3>Character Counter</h3>
           <p>Count characters & lines in real time.</p>
-          <button class="btn">Open</button>
+          <span class="btn">Open</span>
         </a>
         <a class="card link" href="utils/wordcount.html">
           <h3>Word Counter</h3>
           <p>Instant word count for your text.</p>
-          <button class="btn">Open</button>
+          <span class="btn">Open</span>
         </a>
         <a class="card link" href="utils/case-converter.html">
           <h3>Case Converter</h3>
           <p>Convert text to UPPER, lower, or Title Case.</p>
-          <button class="btn">Open</button>
+          <span class="btn">Open</span>
         </a>
       </div>
     </section>
 
-    <section class="section">
+    <section id="games" class="section">
       <div class="section-head">
         <h2>Mini Games</h2>
       </div>
@@ -79,28 +95,64 @@
         <a class="card link" href="games/snake/index.html">
           <h3>Snake (Classic)</h3>
           <p>Arrow keys / WASD to move. Eat apples, avoid walls and yourself.</p>
-          <button class="btn">Play</button>
+          <span class="btn">Play</span>
         </a>
         <a class="card link" href="games/tictactoe/index.html">
           <h3>Tic-Tac-Toe</h3>
           <p>Play classic 3×3 tic-tac-toe with a friend.</p>
-          <button class="btn">Play</button>
+          <span class="btn">Play</span>
         </a>
         <a class="card link" href="games/flappysquare/index.html">
           <h3>Flappy Square</h3>
           <p>Tap/Space to flap. Avoid the pipes.</p>
-          <button class="btn">Play</button>
+          <span class="btn">Play</span>
         </a>
       </div>
     </section>
   </main>
 
   <footer class="site-footer container">
-    <p>© 2025 Your Site. 
-      <a href="privacy.html">Privacy</a> · 
-      <a href="terms.html">Terms</a> · 
+    <p>© 2025 Your Site.
+      <a href="privacy.html">Privacy</a> ·
+      <a href="terms.html">Terms</a> ·
       <a href="contact.html">Contact</a>
     </p>
   </footer>
+
+  <script>
+    // 햄버거 토글
+    const toggleBtn = document.querySelector('.menu-toggle');
+    const nav = document.getElementById('site-nav');
+
+    function setOpen(open) {
+      nav.hidden = !open;
+      toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      const open = nav.hidden;
+      setOpen(open);
+    });
+
+    // 바깥 클릭 시 닫기 (데스크탑)
+    document.addEventListener('click', (e) => {
+      if (!nav.hidden && !nav.contains(e.target) && !toggleBtn.contains(e.target)) {
+        setOpen(false);
+      }
+    });
+
+    // 드롭다운: 상위 링크 클릭 시 펼침/접힘 (모바일 접근성)
+    document.querySelectorAll('.nav-top').forEach(top => {
+      top.addEventListener('click', (e) => {
+        e.preventDefault();
+        const dd = top.nextElementSibling;
+        const shown = dd.style.display === 'block';
+        // 일단 다른 드롭다운은 닫기
+        document.querySelectorAll('.dropdown').forEach(d => d.style.display = 'none');
+        dd.style.display = shown ? 'none' : 'block';
+      });
+    });
+  </script>
 </body>
 </html>
+
