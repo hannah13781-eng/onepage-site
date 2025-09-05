@@ -1,0 +1,32 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>글자수 세기 - 무료 온라인 도구</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+textarea { width:100%; min-height:220px; padding:12px; border-radius:12px; border:1px solid #e5e7eb; }
+.stats { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
+.stat { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px; }
+</style></head>
+<body>
+<header><div class="wrap"><h1>글자수 세기</h1><nav><a href="../">Home</a></nav></div></header>
+<main><div class="wrap">
+  <div class="card">
+    <label for="input"><strong>텍스트를 입력하거나 붙여넣으세요:</strong></label>
+    <textarea id="input" placeholder="여기에 입력..."></textarea>
+    <div class="stats">
+      <div class="stat">글자수: <span id="chars">0</span></div>
+      <div class="stat">단어수: <span id="words">0</span></div>
+      <div class="stat">줄수: <span id="lines">0</span></div>
+    </div>
+  </div>
+</div></main>
+<script>
+const ta=document.getElementById('input');
+const chars=document.getElementById('chars');
+const words=document.getElementById('words');
+const lines=document.getElementById('lines');
+function update(){const v=ta.value; chars.textContent=v.length;
+  const w=v.trim().length? v.trim().split(/\s+/).length:0; words.textContent=w;
+  lines.textContent=v.split(/\n/).length;}
+ta.addEventListener('input',update); update();
+</script></body></html>
