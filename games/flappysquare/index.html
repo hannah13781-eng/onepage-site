@@ -18,7 +18,6 @@
   }
   @media (prefers-color-scheme: dark){ select{ border-color: rgba(255,255,255,0.14);} }
 
-  /* CSS 크기(레이아웃). 내부 해상도는 JS에서 DPR에 맞춤 */
   canvas {
     width: 360px; height: 520px;
     background: var(--elev-2);
@@ -64,50 +63,48 @@
     const canvas = document.getElementById('c');
     const ctx = canvas.getContext('2d');
 
-    // --- DPR 스케일링: 내부 해상도를 디바이스 픽셀 비율에 맞춤 ---
     function setupCanvas() {
       const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
       const cssW = parseInt(getComputedStyle(canvas).width, 10);
       const cssH = parseInt(getComputedStyle(canvas).height, 10);
       canvas.width = cssW * dpr;
       canvas.height = cssH * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // 좌표계를 CSS 픽셀 기준으로
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       return { W: cssW, H: cssH };
     }
     let W = 360, H = 520;
     ({ W, H } = setupCanvas());
     window.addEventListener('resize', () => { ({ W, H } = setupCanvas()); });
 
-    // ---- 게임 파라미터(난이도별) -----------------------------------
-    // *진폭 억제용* DRAG(감쇠)와 MAX_VY(속도 클램프) 도입
+    // --- 난이도별 설정 ---
     const presets = {
-      easy:   { GRAVITY: 0.24, FLAP: -6.2, PIPE_SPEED: 2.0, GAP: 160, DRAG: 0.985, MAX_VY: 5.6 },
-      normal: { GRAVITY: 0.28, FLAP: -6.6, PIPE_SPEED: 2.4, GAP: 130, DRAG: 0.987, MAX_VY: 6.2 },
-      hard:   { GRAVITY: 0.32, FLAP: -6.9, PIPE_SPEED: 2.8, GAP: 115, DRAG: 0.99,  MAX_VY: 6.8 },
+      easy:   { GRAVITY: 0.24, FLAP: -6.2, PIPE_SPEED: 2.0, GAP: 160, DRAG: 0.985, MAX_VY: 5.6, PIPE_DIST: 220 },
+      normal: { GRAVITY: 0.28, FLAP: -6.6, PIPE_SPEED: 2.4, GAP: 130, DRAG: 0.987, MAX_VY: 6.2, PIPE_DIST: 200 },
+      hard:   { GRAVITY: 0.32, FLAP: -6.9, PIPE_SPEED: 2.8, GAP: 115, DRAG: 0.99,  MAX_VY: 6.8, PIPE_DIST: 180 },
     };
-    let GRAVITY, FLAP, PIPE_SPEED, GAP, DRAG, MAX_VY;
+    let GRAVITY, FLAP, PIPE_SPEED, GAP, DRAG, MAX_VY, PIPE_DIST;
 
     function setDifficulty(level){
       const p = presets[level] || presets.easy;
       GRAVITY = p.GRAVITY; FLAP = p.FLAP; PIPE_SPEED = p.PIPE_SPEED;
-      GAP = p.GAP; DRAG = p.DRAG; MAX_VY = p.MAX_VY;
+      GAP = p.GAP; DRAG = p.DRAG; MAX_VY = p.MAX_VY; PIPE_DIST = p.PIPE_DIST;
       reset();
     }
     document.getElementById('difficulty').addEventListener('change', (e)=> setDifficulty(e.target.value));
 
-    // ---- 상태 --------------------------------------------------------
+    // --- 상태 ---
     let bird, pipes, score, started, alive;
 
     function reset(){
       started = false; alive = true; score = 0;
-      bird = { x: 70, y: H/2, vy: 0, size: 20, color: '#FFD166', stroke: '#2F2F2F' }; // 노랑 + 진한 테두리
+      bird = { x: 70, y: H/2, vy: 0, size: 20, color: '#FFD166', stroke: '#2F2F2F' };
       pipes = [];
       spawnPipes();
-      draw(); // 초기 프레임
+      draw();
     }
 
     function spawnPipes(){
-      const top = 50 + Math.random()*(H - (GAP + 100)); // 상하 여백 확보
+      const top = 50 + Math.random()*(H - (GAP + 100));
       const w = 60;
       const x = W + 40;
       pipes.push({ x, w, top, gap: GAP });
@@ -116,31 +113,21 @@
     function update(){
       if(!alive) return;
       if (started) {
-        // 중력
         bird.vy += GRAVITY;
-
-        // 감쇠(공기저항 비슷한 효과) → 진폭 감소
         bird.vy *= DRAG;
-
-        // 속도 클램프 → 과도한 상승/하강 제한
         if (bird.vy >  MAX_VY) bird.vy =  MAX_VY;
         if (bird.vy < -MAX_VY) bird.vy = -MAX_VY;
-
-        // 위치 업데이트
         bird.y += bird.vy;
 
-        // 파이프 이동/생성/제거
         for(const p of pipes){ p.x -= PIPE_SPEED; }
-        if(pipes[pipes.length-1].x < W - 180) spawnPipes();
+        if(pipes[pipes.length-1].x < W - PIPE_DIST) spawnPipes();
         if(pipes[0].x + pipes[0].w < -10) { pipes.shift(); score++; }
 
-        // 충돌
         const p = pipes[0];
         const inX = bird.x + bird.size/2 > p.x && bird.x - bird.size/2 < p.x + p.w;
         const inY = bird.y - bird.size/2 < p.top || bird.y + bird.size/2 > p.top + p.gap;
         if (inX && inY) alive = false;
 
-        // 상하 경계
         if (bird.y - bird.size/2 < 0 || bird.y + bird.size/2 > H) alive = false;
       }
     }
@@ -148,11 +135,16 @@
     function draw(){
       ctx.clearRect(0,0,W,H);
 
-      // 파이프
+      // 파이프 (파란색 본체 + 검정 테두리)
       ctx.fillStyle = '#7C9CFF';
+      ctx.strokeStyle = '#222';
+      ctx.lineWidth = 2;
       for(const p of pipes){
-        ctx.fillRect(p.x, 0, p.w, p.top);
-        ctx.fillRect(p.x, p.top + p.gap, p.w, H - (p.top + p.gap));
+        ctx.beginPath();
+        ctx.rect(p.x, 0, p.w, p.top);
+        ctx.rect(p.x, p.top + p.gap, p.w, H - (p.top + p.gap));
+        ctx.fill();
+        ctx.stroke();
       }
 
       // 새(네모)
@@ -196,11 +188,9 @@
     function flapNow(){
       if(!alive) return;
       if(!started) { started = true; bird.vy = FLAP; return; }
-      // 플랩 시에도 속도 클램프 적용 → 튐 방지
       bird.vy = Math.max(-MAX_VY, FLAP);
     }
 
-    // 입력
     document.addEventListener('keydown', e => {
       if(e.code === 'Space') { e.preventDefault(); flapNow(); }
       if(e.key.toLowerCase() === 'r') reset();
@@ -209,9 +199,9 @@
     canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); flapNow(); }, {passive:false});
     document.getElementById('restart').addEventListener('click', reset);
 
-    // 시작
     setDifficulty('easy');
     loop();
   </script>
 </body>
 </html>
+
