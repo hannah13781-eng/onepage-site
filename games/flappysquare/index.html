@@ -4,17 +4,27 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Flappy Square</title>
-<link rel="stylesheet" href="../../assets/style.css" />
+<link rel="stylesheet" href="../../assets/style.css?v=3" />
 <style>
   .wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
-  canvas { background: var(--elev-2); border-radius: 16px;
-           border:1px solid color-mix(in srgb, var(--text), transparent 85%); }
+  /* CSS 크기는 레이아웃용, 내부 해상도는 JS에서 DPR에 맞춰 설정 */
+  canvas {
+    width: 360px; height: 520px;               /* CSS size */
+    background: var(--elev-2);
+    border-radius: 16px;
+    border:1px solid rgba(0,0,0,0.15);
+  }
+  @media (prefers-color-scheme: dark) {
+    canvas { border-color: rgba(255,255,255,0.12); }
+  }
   .hint { text-align:center; }
 </style>
 </head>
 <body>
-  <header class="site-header container">
-    <a class="brand" href="../../">✨ Playground</a>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="../../">✨ Playground</a>
+    </div>
   </header>
 
   <main class="container">
@@ -24,7 +34,7 @@
     </section>
 
     <div class="wrap">
-      <canvas id="c" width="360" height="520"></canvas>
+      <canvas id="c"></canvas>
       <div class="hint muted">Space / Click / Tap to jump · R to restart</div>
       <button class="btn" id="restart">Restart</button>
     </div>
@@ -33,15 +43,33 @@
   <script>
     const canvas = document.getElementById('c');
     const ctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
 
-    let bird, pipes, g, flap, score, alive;
+    // --- DPR 스케일링: 내부 해상도를 디바이스 픽셀 비율에 맞춤 ---
+    function setupCanvas() {
+      const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+      // CSS 크기
+      const cssW = parseInt(getComputedStyle(canvas).width, 10);
+      const cssH = parseInt(getComputedStyle(canvas).height, 10);
+      // 내부 해상도
+      canvas.width = cssW * dpr;
+      canvas.height = cssH * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // 좌표계를 CSS 픽셀 기준으로 맞춤
+      return { W: cssW, H: cssH };
+    }
+
+    let W = 360, H = 520;
+    ({ W, H } = setupCanvas());
+    window.addEventListener('resize', () => { ({ W, H } = setupCanvas()); });
+
+    let bird, pipes, g, flap, score, started, alive;
 
     function reset(){
+      started = false; // 첫 입력 전엔 중력/충돌 비활성
+      alive = true;
+      score = 0;
+      g = 0.35; flap = -6.5;
       bird = { x: 70, y: H/2, vy: 0, size: 20 };
       pipes = [];
-      g = 0.35; flap = -6.5;
-      score = 0; alive = true;
       spawnPipes();
     }
 
@@ -55,49 +83,66 @@
 
     function update(){
       if(!alive) return;
-      // bird
-      bird.vy += g;
-      bird.y += bird.vy;
 
-      // pipes
-      for(const p of pipes){ p.x -= 2.5; }
-      if(pipes[pipes.length-1].x < W - 180) spawnPipes();
-      if(pipes[0].x + pipes[0].w < -10) { pipes.shift(); score++; }
+      if (started) {
+        // 중력
+        bird.vy += g;
+        bird.y += bird.vy;
 
-      // collisions
-      const p = pipes[0];
-      const inX = bird.x + bird.size/2 > p.x && bird.x - bird.size/2 < p.x + p.w;
-      const inY = bird.y - bird.size/2 < p.top || bird.y + bird.size/2 > p.top + p.gap;
-      if (inX && inY) alive = false;
-      if (bird.y - bird.size/2 < 0 || bird.y + bird.size/2 > H) alive = false;
+        // 파이프 이동/생성/제거
+        for(const p of pipes){ p.x -= 2.5; }
+        if(pipes[pipes.length-1].x < W - 180) spawnPipes();
+        if(pipes[0].x + pipes[0].w < -10) { pipes.shift(); score++; }
+
+        // 충돌 판정
+        const p = pipes[0];
+        const inX = bird.x + bird.size/2 > p.x && bird.x - bird.size/2 < p.x + p.w;
+        const inY = bird.y - bird.size/2 < p.top || bird.y + bird.size/2 > p.top + p.gap;
+        if (inX && inY) alive = false;
+
+        // 바닥/천장
+        if (bird.y - bird.size/2 < 0 || bird.y + bird.size/2 > H) alive = false;
+      }
     }
 
     function draw(){
       ctx.clearRect(0,0,W,H);
 
-      // pipes
+      // 파이프
       ctx.fillStyle = '#7c9cff';
       for(const p of pipes){
         ctx.fillRect(p.x, 0, p.w, p.top);
         ctx.fillRect(p.x, p.top + p.gap, p.w, H - (p.top + p.gap));
       }
 
-      // bird
+      // 새(bird)
       ctx.fillStyle = '#fff';
       ctx.fillRect(bird.x - bird.size/2, bird.y - bird.size/2, bird.size, bird.size);
 
-      // score
-      ctx.fillStyle = '#aaa';
-      ctx.font = '16px Inter, sans-serif';
+      // 스코어
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.font = '16px Inter, system-ui, sans-serif';
+      // 라이트/다크 모두 보이도록 그림자 느낌
       ctx.fillText('Score: ' + score, 12, 22);
 
-      if(!alive){
-        ctx.fillStyle = '#fff';
-        ctx.font = '24px Inter, sans-serif';
-        ctx.fillText('Game Over', W/2 - 68, H/2 - 10);
-        ctx.font = '14px Inter, sans-serif';
-        ctx.fillText('Press R to restart', W/2 - 70, H/2 + 16);
+      if(!started) {
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.font = '24px Inter, system-ui, sans-serif';
+        centerText('Tap to start', H/2 - 10);
+        ctx.font = '14px Inter, system-ui, sans-serif';
+        centerText('Press Space / Click / Tap', H/2 + 16);
+      } else if(!alive) {
+        ctx.fillStyle = 'rgba(255,255,255,0.95)';
+        ctx.font = '24px Inter, system-ui, sans-serif';
+        centerText('Game Over', H/2 - 10);
+        ctx.font = '14px Inter, system-ui, sans-serif';
+        centerText('Press R to restart', H/2 + 16);
       }
+    }
+
+    function centerText(text, y) {
+      const m = ctx.measureText(text);
+      ctx.fillText(text, (W - m.width)/2, y);
     }
 
     function loop(){
@@ -105,11 +150,17 @@
       requestAnimationFrame(loop);
     }
 
-    function flapNow(){ if(alive) bird.vy = flap; }
+    function flapNow(){
+      if(!alive) return;
+      if(!started) { started = true; bird.vy = flap; return; }
+      bird.vy = flap;
+    }
+
+    // 입력 바인딩
     document.addEventListener('keydown', e => {
-      if(e.code === 'Space') flapNow();
+      if(e.code === 'Space') { e.preventDefault(); flapNow(); }
       if(e.key.toLowerCase() === 'r') reset();
-    });
+    }, {passive:false});
     canvas.addEventListener('mousedown', flapNow);
     canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); flapNow(); }, {passive:false});
     document.getElementById('restart').addEventListener('click', reset);
