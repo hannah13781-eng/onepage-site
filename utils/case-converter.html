@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Case Converter - Uppercase & Lowercase</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    textarea { width:100%; min-height:220px; padding:12px; border-radius:12px; border:1px solid #e5e7eb; resize:vertical; }
+    .row { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 16px; }
+    button { padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; background:#fff; cursor:pointer; }
+  </style>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+      const ta = document.getElementById('input');
+      const toUpper = () => ta.value = ta.value.toUpperCase();
+      const toLower = () => ta.value = ta.value.toLowerCase();
+      const toTitle = () => ta.value = ta.value.replace(/\w\S*/g, w => w[0].toUpperCase() + w.slice(1).toLowerCase());
+      document.getElementById('upper').addEventListener('click', toUpper);
+      document.getElementById('lower').addEventListener('click', toLower);
+      document.getElementById('title').addEventListener('click', toTitle);
+    });
+  </script>
+</head>
+<body>
+  <header><div class="wrap"><h1>Case Converter</h1><nav><a href="../">Home</a></nav></div></header>
+  <main><div class="wrap">
+    <div class="card">
+      <div class="row">
+        <button id="upper">UPPERCASE</button>
+        <button id="lower">lowercase</button>
+        <button id="title">Title Case</button>
+      </div>
+      <textarea id="input" placeholder="Paste text and convert..."></textarea>
+    </div>
+  </div></main>
+</body>
+</html>
