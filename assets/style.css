@@ -1,0 +1,13 @@
+:root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, sans-serif; line-height: 1.5; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f7f7f9; color: #111; }
+header { padding: 20px; background: white; border-bottom: 1px solid #eaeaea; position: sticky; top: 0; }
+header .wrap, main .wrap, footer .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+h1, h2, h3 { margin: 0.6em 0 0.4em; }
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.card { background: white; border: 1px solid #e5e7eb; border-radius: 14px; padding: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+a.button { display: inline-block; padding: 10px 14px; border-radius: 10px; border: 1px solid #e5e7eb; text-decoration: none; }
+nav a { margin-right: 12px; text-decoration: none; color: #2563eb; }
+.ad { background: #fafafa; border: 1px dashed #ddd; padding: 10px; text-align: center; border-radius: 10px; font-size: 14px; color: #6b7280; }
+footer { border-top: 1px solid #eaeaea; background: white; padding: 20px 0; margin-top: 32px; }
+small.muted { color: #6b7280; }
