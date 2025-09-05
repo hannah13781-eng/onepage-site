@@ -126,7 +126,7 @@ a:hover { text-decoration: underline; }
 .section { margin: 2rem 0; }
 .section-head {
   display:flex;
-  justify-content:center;   /* 제목 가운데 */
+  justify-content:center;
   text-align:center;
   margin-bottom:1.2rem;
 }
@@ -147,7 +147,7 @@ a:hover { text-decoration: underline; }
   margin: 0 auto;
 }
 
-/* Mini Games: 항상 3개 고정 */
+/* Mini Games: 데스크탑에서 3개 고정 */
 #games .grid {
   grid-template-columns: repeat(3, 1fr);
   max-width: 1000px;
@@ -164,8 +164,8 @@ a:hover { text-decoration: underline; }
   display:flex;
   flex-direction:column;
   justify-content:space-between;
-  min-height:160px;          /* 높이 동일 */
-  text-align:center;         /* 가운데 정렬 */
+  min-height:160px;
+  text-align:center;
 }
 @media (prefers-color-scheme: dark) {
   .card { border-color: rgba(255,255,255,0.08); }
@@ -230,4 +230,30 @@ small, .hint { color: var(--muted); }
   .site-footer { border-top-color: rgba(255,255,255,0.14); }
 }
 .site-footer .container { padding: 1.2rem 1rem; text-align: center; }
+
+/* ======= Responsive (모바일 최적화) ================================ */
+/* 태블릿: Mini Games 2열 */
+@media (max-width: 780px) {
+  #games .grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 680px;
+  }
+  .hero h1 { font-size: 1.8rem; }
+}
+
+/* 휴대폰: Mini Games 1열, Utilities 더 촘촘히 */
+@media (max-width: 560px) {
+  #games .grid {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+  }
+  #utils .grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    max-width: 440px;
+  }
+  .card { min-height: 148px; }
+  .hero { padding: 1.6rem 0 .6rem; }
+  .section { margin: 1.4rem 0; }
+  .section-head h2 { font-size: 1.35rem; }
+}
 
