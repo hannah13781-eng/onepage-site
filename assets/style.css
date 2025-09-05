@@ -164,3 +164,55 @@ input:focus, textarea:focus, select:focus {
 }
 label { font-weight: 600; display:block; margin: .6rem 0 .3rem; }
 small, .hint { color: var(--muted); }
+/* 중앙 정렬 */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem;
+  text-align: center;
+}
+
+/* 네비게이션 */
+.nav {
+  display: flex;
+  gap: .5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-item > a {
+  padding: .6rem .9rem;
+  font-weight: 500;
+}
+
+.nav-item:hover > .dropdown {
+  display: block;
+}
+
+/* 드롭다운 */
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 100%; left: 0;
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--text), transparent 85%);
+  border-radius: 10px;
+  min-width: 180px;
+  box-shadow: var(--shadow);
+  text-align: left;
+  z-index: 100;
+}
+
+.dropdown a {
+  display: block;
+  padding: .5rem .9rem;
+  color: var(--text);
+}
+
+.dropdown a:hover {
+  background: var(--elev-2);
+}
