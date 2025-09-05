@@ -139,18 +139,17 @@ a:hover { text-decoration: underline; }
 
 /* ======= Grid & Cards ============================================== */
 .grid {
-  display: flex;             /* flex로 변경 */
-  flex-wrap: wrap;           /* 줄바꿈 허용 */
+  display: grid;
+  justify-content: center;              /* 가운데 정렬 */
   gap: 1rem;
-  justify-content: center;   /* 카드들을 가운데 정렬 */
 }
 
 .card {
-  background: var(--card); color: var(--text);
-  border-radius: var(--radius); box-shadow: var(--shadow);
-  padding: 1.25rem; border: 1px solid rgba(255,255,255,0.08);
-  transition: transform .15s ease, box-shadow .15s ease, border-color .2s ease, background .2s ease;
-  display:block;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 160px;   /* 높이 통일 */
+  text-align: center;  /* 내용 가운데 정렬 */
 }
 @media (prefers-color-scheme: light) {
   .card { border-color: rgba(0,0,0,0.06); }
