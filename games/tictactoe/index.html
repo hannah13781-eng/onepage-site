@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tic-Tac-Toe</title>
+<link rel="stylesheet" href="../../assets/style.css" />
+<style>
+  .board {
+    display:grid; grid-template-columns: repeat(3, 100px); gap:8px;
+    justify-content:center; margin: 1rem auto;
+  }
+  .cell {
+    width:100px; height:100px; display:flex; align-items:center; justify-content:center;
+    font-size:2.4rem; font-weight:800; background: var(--card); border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--text), transparent 85%);
+    cursor:pointer; user-select:none;
+  }
+  .panel { text-align:center; }
+</style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="../../">✨ Playground</a>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Tic-Tac-Toe</h1>
+      <p>Two players take turns. First to align 3 wins.</p>
+      <div class="panel">
+        <div id="status" class="muted">Turn: X</div>
+        <button class="btn primary" id="reset">Reset</button>
+      </div>
+    </section>
+
+    <div class="board" id="board"></div>
+  </main>
+
+  <script>
+    const boardEl = document.getElementById('board');
+    const statusEl = document.getElementById('status');
+    const resetBtn = document.getElementById('reset');
+    const lines = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+    let cells, state, turn, done;
+
+    function init(){
+      boardEl.innerHTML = '';
+      state = Array(9).fill('');
+      turn = 'X'; done = false;
+      statusEl.textContent = 'Turn: ' + turn;
+      for (let i=0;i<9;i++){
+        const c = document.createElement('div');
+        c.className='cell';
+        c.dataset.i=i;
+        c.addEventListener('click', onClick);
+        boardEl.appendChild(c);
+      }
+      cells = [...document.querySelectorAll('.cell')];
+    }
+
+    function onClick(e){
+      const i = +e.currentTarget.dataset.i;
+      if(done || state[i]) return;
+      state[i] = turn;
+      cells[i].textContent = turn;
+      if (check(turn)) {
+        statusEl.textContent = turn + ' wins!';
+        done = true; return;
+      }
+      if (state.every(Boolean)) {
+        statusEl.textContent = 'Draw.';
+        done = true; return;
+      }
+      turn = turn === 'X' ? 'O' : 'X';
+      statusEl.textContent = 'Turn: ' + turn;
+    }
+
+    function check(t){
+      return lines.some(([a,b,c]) => state[a]===t && state[b]===t && state[c]===t);
+    }
+
+    resetBtn.addEventListener('click', init);
+    init();
+  </script>
+</body>
+</html>
