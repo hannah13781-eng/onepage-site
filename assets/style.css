@@ -124,14 +124,25 @@ a:hover { text-decoration: underline; }
 .hero-cta { display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; }
 
 .section { margin: 2rem 0; }
-.section-head { display:flex; align-items:end; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
-.section-head h2 { margin:0; font-size:1.6rem; letter-spacing:-0.01em; }
+.section-head {
+  display: flex;
+  justify-content: center;   /* 제목 가운데 */
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+.section-head h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  letter-spacing: -0.01em;
+}
 .section-head p { margin:0; color: var(--muted); }
 
 /* ======= Grid & Cards ============================================== */
 .grid {
-  display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1rem; align-items: stretch;
+  display: flex;             /* flex로 변경 */
+  flex-wrap: wrap;           /* 줄바꿈 허용 */
+  gap: 1rem;
+  justify-content: center;   /* 카드들을 가운데 정렬 */
 }
 
 .card {
