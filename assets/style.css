@@ -1,199 +1,46 @@
-/* ===== Global Style Overhaul (light/dark 자동 대응) =================== */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-* { box-sizing: border-box; }
-html, body { height: 100%; }
-:root {
-  --bg: #0b0c10;
-  --surface: #111318;
-  --elev-1: #151922;
-  --elev-2: #1b2030;
-  --text: #e9edf1;
-  --muted: #a9b1bb;
-  --primary: #6b7cff;         /* indigo */
-  --primary-600: #5b6cff;
-  --ring: #9fb0ff4d;
-  --card: var(--elev-1);
-  --radius: 16px;
-  --shadow: 0 10px 30px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.25);
-  --gap: 1rem;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f7f8fb;
-    --surface: #ffffff;
-    --elev-1: #ffffff;
-    --elev-2: #f1f3f9;
-    --text: #0f1222;
-    --muted: #5a6472;
-    --primary: #4c6fff;
-    --primary-600: #3b59f8;
-    --ring: #4c6fff2a;
-    --card: #ffffff;
-    --shadow: 0 10px 25px rgba(16,24,40,.08), 0 2px 6px rgba(16,24,40,.05);
-  }
-}
-
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  line-height: 1.65;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a { color: var(--primary); text-decoration: none; }
-a:hover { text-decoration: underline; }
-
-img { max-width: 100%; display: block; }
-
-/* ===== Layout ========================================================= */
-.container { max-width: 1100px; margin: 0 auto; padding: 1rem; }
-.section { margin: 2.25rem 0; }
-.section-head { display:flex; align-items:end; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
-.section-head h2 { margin: 0; font-size: 1.6rem; letter-spacing: -0.01em; }
-.section-head p { margin: 0; color: var(--muted); }
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--gap);
-}
-
-/* ===== Header / Footer =============================================== */
-.site-header {
-  position: sticky; top: 0; z-index: 50;
-  backdrop-filter: saturate(160%) blur(8px);
-  background: color-mix(in srgb, var(--bg), transparent 65%);
-  border-bottom: 1px solid color-mix(in srgb, var(--text), transparent 90%);
-}
-.site-header .brand {
-  font-weight: 800; letter-spacing: -0.02em;
-  font-size: 1.2rem; padding: .75rem 0; display: inline-block;
-}
-.nav a {
-  display:inline-block; margin-left:.25rem; padding:.5rem .7rem;
-  border-radius: 10px; border:1px solid transparent;
-}
-.nav a:hover { background: var(--elev-2); border-color: var(--ring); text-decoration: none; }
-
-.site-footer {
-  border-top: 1px solid color-mix(in srgb, var(--text), transparent 88%);
-  color: var(--muted); padding: 2rem 0; font-size: .95rem;
-}
-
-/* ===== Hero =========================================================== */
-.hero { padding: 2.25rem 0 1rem; text-align: left; }
-.hero h1 { margin: 0 0 .4rem; letter-spacing: -0.02em; font-size: 2rem; }
-.hero p { margin: 0 0 1rem; color: var(--muted); max-width: 52ch; }
-.hero-cta { display:flex; gap:.6rem; flex-wrap: wrap; }
-
-/* ===== Cards & Buttons =============================================== */
-.card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 1.25rem;
-  border: 1px solid color-mix(in srgb, var(--text), transparent 90%);
-  transition: transform .15s ease, box-shadow .15s ease, border-color .2s ease, background .2s ease;
-}
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 40px rgba(0,0,0,.22), 0 4px 10px rgba(0,0,0,.18);
-  border-color: var(--ring);
-}
-.card h3 { margin:.25rem 0 .5rem; font-size:1.1rem; letter-spacing: -0.01em; }
-.card p { margin: 0 0 .85rem; color: var(--muted); }
-.card .emoji { font-size: 1.6rem; line-height: 1; }
-
-.btn, .button {
-  display:inline-block;
-  background: var(--elev-2);
-  color: var(--text);
-  border:1px solid transparent;
-  padding:.6rem 1rem;
-  border-radius: 12px;
-  font-weight: 600;
-  transition: transform .15s ease, box-shadow .15s ease, background .2s, border-color .2s;
-  box-shadow: 0 1px 0 rgba(0,0,0,.06);
-}
-.btn:hover, .button:hover { transform: translateY(-1px); border-color: var(--ring); text-decoration: none; }
-.btn.primary { background: var(--primary); color:#fff; }
-.btn.primary:hover { background: var(--primary-600); }
-
-/* ===== Typography niceties =========================================== */
-h1,h2,h3 { line-height: 1.25; }
-h2 { margin-top: 0; }
-code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
-
-/* ===== Utility helpers =============================================== */
-.link { text-decoration: none; color: inherit; }
-.center { text-align: center; }
-.muted { color: var(--muted); }
-.round { border-radius: var(--radius); }
-.shadow { box-shadow: var(--shadow); }
-
-/* ===== Ad placeholder (if any) ======================================= */
-.ad-placeholder {
-  background: var(--elev-2);
-  color: var(--muted);
-  border: 1px dashed color-mix(in srgb, var(--text), transparent 70%);
-  border-radius: 14px;
-  padding: .9rem 1rem;
-  text-align: center;
-  font-size: .95rem;
-}
-
-/* ===== Forms (for contact & tools) =================================== */
-input, textarea, select {
-  width: 100%;
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid color-mix(in srgb, var(--text), transparent 85%);
-  border-radius: 12px;
-  padding: .7rem .9rem;
-  outline: none;
-  transition: border-color .15s, box-shadow .15s, background .15s;
-}
-input:focus, textarea:focus, select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 6px var(--ring);
-}
-label { font-weight: 600; display:block; margin: .6rem 0 .3rem; }
-small, .hint { color: var(--muted); }
-/* 중앙 정렬 */
+/* 중앙 정렬 강화 */
 .container {
   max-width: 1100px;
   margin: 0 auto;
   padding: 1rem;
-  text-align: center;
 }
 
-/* 네비게이션 */
+/* 헤더 내부 정렬 */
+.header-inner {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+/* 내비게이션: 가운데 정렬 + 접힘 지원 */
 .nav {
-  display: flex;
-  gap: .5rem;
-  justify-content: center;
-  flex-wrap: wrap;
+  display:flex;
+  gap:.5rem;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top:.25rem;
 }
 
-.nav-item {
-  position: relative;
-}
+.collapsible[hidden] { display: none !important; }
 
-.nav-item > a {
-  padding: .6rem .9rem;
-  font-weight: 500;
+/* 햄버거 버튼 */
+.menu-toggle {
+  appearance: none;
+  background: var(--elev-2);
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--text), transparent 85%);
+  border-radius: 10px;
+  padding: .45rem .7rem;
+  font-size: 1rem;
+  cursor: pointer;
 }
+.menu-toggle:hover { border-color: var(--ring); }
 
-.nav-item:hover > .dropdown {
-  display: block;
-}
+/* 네비구조 / 드롭다운 */
+.nav-item { position: relative; }
+.nav-item > a { padding:.6rem .9rem; font-weight:600; border-radius:10px; display:inline-block; }
+.nav-item > a:hover { background: var(--elev-2); border: 1px solid var(--ring); }
 
-/* 드롭다운 */
 .dropdown {
   display: none;
   position: absolute;
@@ -201,7 +48,7 @@ small, .hint { color: var(--muted); }
   background: var(--surface);
   border: 1px solid color-mix(in srgb, var(--text), transparent 85%);
   border-radius: 10px;
-  min-width: 180px;
+  min-width: 200px;
   box-shadow: var(--shadow);
   text-align: left;
   z-index: 100;
@@ -209,10 +56,17 @@ small, .hint { color: var(--muted); }
 
 .dropdown a {
   display: block;
-  padding: .5rem .9rem;
+  padding: .6rem .9rem;
   color: var(--text);
+  border-radius: 8px;
+}
+.dropdown a:hover { background: var(--elev-2); }
+
+/* 데스크탑 호버 시 드롭다운 표시 */
+@media (hover:hover) {
+  .nav-item:hover > .dropdown { display: block; }
 }
 
-.dropdown a:hover {
-  background: var(--elev-2);
-}
+/* 본문 타이포를 좌측 정렬 + 섹션만 가운데 폭 */
+.hero, .section-head, .card p { text-align: left; }
+.grid { align-items: stretch; }
