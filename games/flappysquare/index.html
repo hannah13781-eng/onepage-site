@@ -7,9 +7,20 @@
 <link rel="stylesheet" href="../../assets/style.css?v=3" />
 <style>
   .wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
-  /* CSS 크기는 레이아웃용, 내부 해상도는 JS에서 DPR에 맞춰 설정 */
+  .controlbar {
+    display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;
+    color: var(--muted);
+  }
+  .controlbar label { font-weight:600; color: inherit; }
+  select {
+    background: var(--surface); color: var(--text);
+    border:1px solid rgba(0,0,0,0.12); border-radius:10px; padding:.45rem .6rem;
+  }
+  @media (prefers-color-scheme: dark){ select{ border-color: rgba(255,255,255,0.14);} }
+
+  /* CSS 크기(레이아웃). 내부 해상도는 JS에서 DPR에 맞춤 */
   canvas {
-    width: 360px; height: 520px;               /* CSS size */
+    width: 360px; height: 520px;
     background: var(--elev-2);
     border-radius: 16px;
     border:1px solid rgba(0,0,0,0.15);
@@ -34,8 +45,17 @@
     </section>
 
     <div class="wrap">
+      <div class="controlbar">
+        <label for="difficulty">Difficulty</label>
+        <select id="difficulty" aria-label="Difficulty">
+          <option value="easy" selected>Easy</option>
+          <option value="normal">Normal</option>
+          <option value="hard">Hard</option>
+        </select>
+        <span class="hint">• Space/Click/Tap to jump · R to restart</span>
+      </div>
+
       <canvas id="c"></canvas>
-      <div class="hint muted">Space / Click / Tap to jump · R to restart</div>
       <button class="btn" id="restart">Restart</button>
     </div>
   </main>
@@ -47,60 +67,71 @@
     // --- DPR 스케일링: 내부 해상도를 디바이스 픽셀 비율에 맞춤 ---
     function setupCanvas() {
       const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
-      // CSS 크기
       const cssW = parseInt(getComputedStyle(canvas).width, 10);
       const cssH = parseInt(getComputedStyle(canvas).height, 10);
-      // 내부 해상도
       canvas.width = cssW * dpr;
       canvas.height = cssH * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // 좌표계를 CSS 픽셀 기준으로 맞춤
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // 좌표계를 CSS 픽셀 기준으로
       return { W: cssW, H: cssH };
     }
-
     let W = 360, H = 520;
     ({ W, H } = setupCanvas());
     window.addEventListener('resize', () => { ({ W, H } = setupCanvas()); });
 
-    let bird, pipes, g, flap, score, started, alive;
+    // ---- 게임 파라미터(난이도별) -----------------------------------
+    const presets = {
+      easy:   { GRAVITY: 0.26, FLAP: -7.8, PIPE_SPEED: 2.0, GAP: 160 },
+      normal: { GRAVITY: 0.32, FLAP: -7.0, PIPE_SPEED: 2.4, GAP: 130 },
+      hard:   { GRAVITY: 0.36, FLAP: -6.4, PIPE_SPEED: 2.8, GAP: 115 },
+    };
+    let GRAVITY = presets.easy.GRAVITY;
+    let FLAP    = presets.easy.FLAP;
+    let PIPE_SPEED = presets.easy.PIPE_SPEED;
+    let GAP = presets.easy.GAP;
+
+    function setDifficulty(level){
+      const p = presets[level] || presets.easy;
+      GRAVITY = p.GRAVITY; FLAP = p.FLAP; PIPE_SPEED = p.PIPE_SPEED; GAP = p.GAP;
+      reset();
+    }
+    document.getElementById('difficulty').addEventListener('change', (e)=> setDifficulty(e.target.value));
+
+    // ---- 상태 --------------------------------------------------------
+    let bird, pipes, score, started, alive;
 
     function reset(){
-      started = false; // 첫 입력 전엔 중력/충돌 비활성
-      alive = true;
-      score = 0;
-      g = 0.35; flap = -6.5;
-      bird = { x: 70, y: H/2, vy: 0, size: 20 };
+      started = false; alive = true; score = 0;
+      bird = { x: 70, y: H/2, vy: 0, size: 20, color: '#FFD166', stroke: '#2F2F2F' }; // 밝은 노랑 + 진한 테두리
       pipes = [];
       spawnPipes();
+      draw(); // 초기 프레임
     }
 
     function spawnPipes(){
-      const gap = 120;
-      const top = 60 + Math.random()*(H - 220);
+      const top = 50 + Math.random()*(H - (GAP + 100)); // 상하 여백 확보
       const w = 60;
       const x = W + 40;
-      pipes.push({ x, w, top, gap });
+      pipes.push({ x, w, top, gap: GAP });
     }
 
     function update(){
       if(!alive) return;
-
       if (started) {
-        // 중력
-        bird.vy += g;
+        // 중력/이동
+        bird.vy += GRAVITY;
         bird.y += bird.vy;
 
-        // 파이프 이동/생성/제거
-        for(const p of pipes){ p.x -= 2.5; }
+        for(const p of pipes){ p.x -= PIPE_SPEED; }
         if(pipes[pipes.length-1].x < W - 180) spawnPipes();
         if(pipes[0].x + pipes[0].w < -10) { pipes.shift(); score++; }
 
-        // 충돌 판정
+        // 충돌
         const p = pipes[0];
         const inX = bird.x + bird.size/2 > p.x && bird.x - bird.size/2 < p.x + p.w;
         const inY = bird.y - bird.size/2 < p.top || bird.y + bird.size/2 > p.top + p.gap;
         if (inX && inY) alive = false;
 
-        // 바닥/천장
+        // 상하 경계
         if (bird.y - bird.size/2 < 0 || bird.y + bird.size/2 > H) alive = false;
       }
     }
@@ -108,36 +139,39 @@
     function draw(){
       ctx.clearRect(0,0,W,H);
 
-      // 파이프
-      ctx.fillStyle = '#7c9cff';
+      // 파이프 (브랜드 컬러 계열)
+      ctx.fillStyle = '#7C9CFF';
       for(const p of pipes){
         ctx.fillRect(p.x, 0, p.w, p.top);
         ctx.fillRect(p.x, p.top + p.gap, p.w, H - (p.top + p.gap));
       }
 
-      // 새(bird)
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(bird.x - bird.size/2, bird.y - bird.size/2, bird.size, bird.size);
+      // 새(네모) — 노란색 본체 + 진한 테두리로 시인성 ↑
+      const s = bird.size;
+      ctx.fillStyle = bird.color;
+      ctx.strokeStyle = bird.stroke;
+      ctx.lineWidth = 2;
+      ctx.fillRect(bird.x - s/2, bird.y - s/2, s, s);
+      ctx.strokeRect(bird.x - s/2, bird.y - s/2, s, s);
 
       // 스코어
-      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
       ctx.font = '16px Inter, system-ui, sans-serif';
-      // 라이트/다크 모두 보이도록 그림자 느낌
       ctx.fillText('Score: ' + score, 12, 22);
 
       if(!started) {
-        ctx.fillStyle = 'rgba(255,255,255,0.9)';
-        ctx.font = '24px Inter, system-ui, sans-serif';
-        centerText('Tap to start', H/2 - 10);
-        ctx.font = '14px Inter, system-ui, sans-serif';
-        centerText('Press Space / Click / Tap', H/2 + 16);
+        overlayText('Tap to start', 'Press Space / Click / Tap', false);
       } else if(!alive) {
-        ctx.fillStyle = 'rgba(255,255,255,0.95)';
-        ctx.font = '24px Inter, system-ui, sans-serif';
-        centerText('Game Over', H/2 - 10);
-        ctx.font = '14px Inter, system-ui, sans-serif';
-        centerText('Press R to restart', H/2 + 16);
+        overlayText('Game Over', 'Press R to restart', true);
       }
+    }
+
+    function overlayText(title, subtitle, strong){
+      ctx.fillStyle = strong ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.9)';
+      ctx.font = '24px Inter, system-ui, sans-serif';
+      centerText(title, H/2 - 10);
+      ctx.font = '14px Inter, system-ui, sans-serif';
+      centerText(subtitle, H/2 + 16);
     }
 
     function centerText(text, y) {
@@ -152,11 +186,11 @@
 
     function flapNow(){
       if(!alive) return;
-      if(!started) { started = true; bird.vy = flap; return; }
-      bird.vy = flap;
+      if(!started) { started = true; bird.vy = FLAP; return; }
+      bird.vy = FLAP;
     }
 
-    // 입력 바인딩
+    // 입력
     document.addEventListener('keydown', e => {
       if(e.code === 'Space') { e.preventDefault(); flapNow(); }
       if(e.key.toLowerCase() === 'r') reset();
@@ -165,6 +199,7 @@
     canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); flapNow(); }, {passive:false});
     document.getElementById('restart').addEventListener('click', reset);
 
+    // 시작
     reset(); loop();
   </script>
 </body>
