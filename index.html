@@ -4,47 +4,48 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>One-Page Tools & Games</title>
-  <link rel="stylesheet" href="assets/style.css" />
+  <!-- 캐시 무력화 위해 v=3 -->
+  <link rel="stylesheet" href="assets/style.css?v=3" />
   <meta name="color-scheme" content="light dark" />
 </head>
 <body>
-  <header class="site-header container">
-    <div class="header-inner">
+  <header class="site-header">
+    <div class="container header-inner">
       <a class="brand" href="./">✨ Playground</a>
 
       <!-- 햄버거 버튼 -->
-      <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle menu">
-        ☰
-      </button>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle menu">☰</button>
     </div>
 
     <!-- 접히는 내비게이션 -->
     <nav id="site-nav" class="nav collapsible" hidden>
-      <div class="nav-item">
-        <a href="#" class="nav-top">Utilities ▾</a>
-        <div class="dropdown">
-          <a href="utils/charcount.html">Character Counter</a>
-          <a href="utils/wordcount.html">Word Counter</a>
-          <a href="utils/case-converter.html">Case Converter</a>
+      <div class="container nav-row">
+        <div class="nav-item">
+          <a href="#" class="nav-top">Utilities ▾</a>
+          <div class="dropdown">
+            <a href="utils/charcount.html">Character Counter</a>
+            <a href="utils/wordcount.html">Word Counter</a>
+            <a href="utils/case-converter.html">Case Converter</a>
+          </div>
         </div>
-      </div>
 
-      <div class="nav-item">
-        <a href="#" class="nav-top">Games ▾</a>
-        <div class="dropdown">
-          <a href="games/snake/index.html">Snake</a>
-          <a href="games/tictactoe/index.html">Tic-Tac-Toe</a>
-          <a href="games/flappysquare/index.html">Flappy Square</a>
+        <div class="nav-item">
+          <a href="#" class="nav-top">Games ▾</a>
+          <div class="dropdown">
+            <a href="games/snake/index.html">Snake</a>
+            <a href="games/tictactoe/index.html">Tic-Tac-Toe</a>
+            <a href="games/flappysquare/index.html">Flappy Square</a>
+          </div>
         </div>
-      </div>
 
-      <div class="nav-item">
-        <a href="#" class="nav-top">About ▾</a>
-        <div class="dropdown">
-          <a href="about.html">About</a>
-          <a href="privacy.html">Privacy</a>
-          <a href="terms.html">Terms</a>
-          <a href="contact.html">Contact</a>
+        <div class="nav-item">
+          <a href="#" class="nav-top">About ▾</a>
+          <div class="dropdown">
+            <a href="about.html">About</a>
+            <a href="privacy.html">Privacy</a>
+            <a href="terms.html">Terms</a>
+            <a href="contact.html">Contact</a>
+          </div>
         </div>
       </div>
     </nav>
@@ -70,16 +71,19 @@
       </div>
       <div class="grid">
         <a class="card link" href="utils/charcount.html">
+          <div class="emoji">🔤</div>
           <h3>Character Counter</h3>
           <p>Count characters & lines in real time.</p>
           <span class="btn">Open</span>
         </a>
         <a class="card link" href="utils/wordcount.html">
+          <div class="emoji">📝</div>
           <h3>Word Counter</h3>
           <p>Instant word count for your text.</p>
           <span class="btn">Open</span>
         </a>
         <a class="card link" href="utils/case-converter.html">
+          <div class="emoji">🔁</div>
           <h3>Case Converter</h3>
           <p>Convert text to UPPER, lower, or Title Case.</p>
           <span class="btn">Open</span>
@@ -93,16 +97,19 @@
       </div>
       <div class="grid">
         <a class="card link" href="games/snake/index.html">
+          <div class="emoji">🐍</div>
           <h3>Snake (Classic)</h3>
           <p>Arrow keys / WASD to move. Eat apples, avoid walls and yourself.</p>
           <span class="btn">Play</span>
         </a>
         <a class="card link" href="games/tictactoe/index.html">
+          <div class="emoji">⭕❌</div>
           <h3>Tic-Tac-Toe</h3>
           <p>Play classic 3×3 tic-tac-toe with a friend.</p>
           <span class="btn">Play</span>
         </a>
         <a class="card link" href="games/flappysquare/index.html">
+          <div class="emoji">🟪</div>
           <h3>Flappy Square</h3>
           <p>Tap/Space to flap. Avoid the pipes.</p>
           <span class="btn">Play</span>
@@ -111,12 +118,14 @@
     </section>
   </main>
 
-  <footer class="site-footer container">
-    <p>© 2025 Your Site.
-      <a href="privacy.html">Privacy</a> ·
-      <a href="terms.html">Terms</a> ·
-      <a href="contact.html">Contact</a>
-    </p>
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 2025 Your Site.
+        <a href="privacy.html">Privacy</a> ·
+        <a href="terms.html">Terms</a> ·
+        <a href="contact.html">Contact</a>
+      </p>
+    </div>
   </footer>
 
   <script>
@@ -128,26 +137,21 @@
       nav.hidden = !open;
       toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
     }
+    toggleBtn.addEventListener('click', () => setOpen(nav.hidden));
 
-    toggleBtn.addEventListener('click', () => {
-      const open = nav.hidden;
-      setOpen(open);
-    });
-
-    // 바깥 클릭 시 닫기 (데스크탑)
+    // 바깥 클릭 시 닫기
     document.addEventListener('click', (e) => {
       if (!nav.hidden && !nav.contains(e.target) && !toggleBtn.contains(e.target)) {
         setOpen(false);
       }
     });
 
-    // 드롭다운: 상위 링크 클릭 시 펼침/접힘 (모바일 접근성)
+    // 모바일에서 상위 항목 클릭 시 하위 펼치기
     document.querySelectorAll('.nav-top').forEach(top => {
       top.addEventListener('click', (e) => {
         e.preventDefault();
         const dd = top.nextElementSibling;
         const shown = dd.style.display === 'block';
-        // 일단 다른 드롭다운은 닫기
         document.querySelectorAll('.dropdown').forEach(d => d.style.display = 'none');
         dd.style.display = shown ? 'none' : 'block';
       });
@@ -155,4 +159,3 @@
   </script>
 </body>
 </html>
-
