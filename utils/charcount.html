@@ -1,16 +1,15 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>글자수 세기 - 무료 온라인 도구</title>
+  <title>Character Counter - Free Online Tool</title>
   <link rel="stylesheet" href="../assets/style.css">
   <style>
     textarea { width:100%; min-height:220px; padding:12px; border-radius:12px; border:1px solid #e5e7eb; resize:vertical; }
     .stats { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
     .stat { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px; }
   </style>
-  <!-- 스크립트를 지연 실행해 DOM이 준비된 뒤 동작하게 -->
   <script defer>
     document.addEventListener('DOMContentLoaded', () => {
       const ta    = document.getElementById('input');
@@ -26,16 +25,15 @@
         lines.textContent = v ? String(v.split(/\n/).length) : '0';
       }
 
-      ta.addEventListener('input',  update);
-      ta.addEventListener('change', update);
-      update(); // 초기 표시
+      ta.addEventListener('input', update);
+      update();
     });
   </script>
 </head>
 <body>
   <header>
     <div class="wrap">
-      <h1>글자수 세기</h1>
+      <h1>Character Counter</h1>
       <nav><a href="../">Home</a></nav>
     </div>
   </header>
@@ -43,12 +41,12 @@
   <main>
     <div class="wrap">
       <div class="card">
-        <label for="input"><strong>텍스트를 입력하거나 붙여넣으세요:</strong></label>
-        <textarea id="input" placeholder="여기에 입력..."></textarea>
+        <label for="input"><strong>Type or paste your text below:</strong></label>
+        <textarea id="input" placeholder="Start typing here..."></textarea>
         <div class="stats">
-          <div class="stat">글자수: <span id="chars">0</span></div>
-          <div class="stat">단어수: <span id="words">0</span></div>
-          <div class="stat">줄수: <span id="lines">0</span></div>
+          <div class="stat">Characters: <span id="chars">0</span></div>
+          <div class="stat">Words: <span id="words">0</span></div>
+          <div class="stat">Lines: <span id="lines">0</span></div>
         </div>
       </div>
     </div>
