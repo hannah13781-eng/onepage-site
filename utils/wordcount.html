@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Word Counter - Free Online Tool</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    textarea { width:100%; min-height:220px; padding:12px; border-radius:12px; border:1px solid #e5e7eb; resize:vertical; }
+    .stats { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
+    .stat  { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px; }
+  </style>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+      const ta = document.getElementById('input');
+      const words = document.getElementById('words');
+      function update() {
+        const v = ta.value || '';
+        const trimmed = v.trim();
+        words.textContent = trimmed ? String(trimmed.split(/\s+/).length) : '0';
+      }
+      ta.addEventListener('input', update);
+      update();
+    });
+  </script>
+</head>
+<body>
+  <header><div class="wrap"><h1>Word Counter</h1><nav><a href="../">Home</a></nav></div></header>
+  <main><div class="wrap">
+    <div class="card">
+      <label for="input"><strong>Type or paste your text:</strong></label>
+      <textarea id="input" placeholder="Start typing here..."></textarea>
+      <div class="stats"><div class="stat">Words: <span id="words">0</span></div></div>
+    </div>
+  </div></main>
+</body>
+</html>
