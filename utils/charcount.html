@@ -6,27 +6,31 @@
   <title>글자수 세기 - 무료 온라인 도구</title>
   <link rel="stylesheet" href="../assets/style.css">
   <style>
-    textarea {
-      width: 100%;
-      min-height: 220px;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid #e5e7eb;
-      resize: vertical;
-    }
-    .stats {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-    .stat {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 10px 12px;
-    }
+    textarea { width:100%; min-height:220px; padding:12px; border-radius:12px; border:1px solid #e5e7eb; resize:vertical; }
+    .stats { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
+    .stat { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px; }
   </style>
+  <!-- 스크립트를 지연 실행해 DOM이 준비된 뒤 동작하게 -->
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+      const ta    = document.getElementById('input');
+      const chars = document.getElementById('chars');
+      const words = document.getElementById('words');
+      const lines = document.getElementById('lines');
+
+      function update() {
+        const v = ta.value || '';
+        chars.textContent = String(v.length);
+        const trimmed = v.trim();
+        words.textContent = trimmed ? String(trimmed.split(/\s+/).length) : '0';
+        lines.textContent = v ? String(v.split(/\n/).length) : '0';
+      }
+
+      ta.addEventListener('input',  update);
+      ta.addEventListener('change', update);
+      update(); // 초기 표시
+    });
+  </script>
 </head>
 <body>
   <header>
@@ -49,15 +53,5 @@
       </div>
     </div>
   </main>
-
-  <script>
-    const ta = document.getElementById('input');
-    const chars = document.getElementById('chars');
-    const words = document.getElementById('words');
-    const lines = document.getElementById('lines');
-
-    function update() {
-      const v = ta.value;
-      chars.textContent = v.length;
-      const w = v.trim().length ? v.trim().split(/\s+/).length : 0;
-      words.textContent = w;
+</body>
+</html>
